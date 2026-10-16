@@ -47,7 +47,7 @@ def gridding_with_doppler_tracking(speclist,center,imsize=[100,100],cell=1/60,re
     df     = dv/c*rest_freq          # unit: GHz;
     faxis = np.arange(fmin,fmax,df) # This is the frequency axis in the frame of the final cube
     
-    speclist = np.loadtxt(speclist,dtype=str)
+    speclist = np.loadtxt(speclist, dtype=str, ndmin=1)
     for specfits in speclist:
         try:
             if not psrflag:

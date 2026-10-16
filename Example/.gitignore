@@ -1,0 +1,7 @@
+output/
+data/**
+!data/psr/
+!data/spec/
+!data/pointing/
+!data/**/.gitkeep
+!data/cal/
