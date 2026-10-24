@@ -1,0 +1,9 @@
+#!/bin/sh
+FISH_PACKAGE=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+export PYTHONPATH="$FISH_PACKAGE/src${PYTHONPATH:+:$PYTHONPATH}"
+FISH_PYTHON=${FISH_QT_PYTHON:-"$FISH_PACKAGE/../fastfish_runtime/qt/bin/python"}
+if [ ! -x "$FISH_PYTHON" ]; then
+    echo 'Set FISH_QT_PYTHON to Python with fastfish Qt dependencies installed.' >&2
+    exit 1
+fi
+exec "$FISH_PYTHON" -m fastfish.qt_viewer "$@"

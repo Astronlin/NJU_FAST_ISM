@@ -1,0 +1,873 @@
+{
+  "schema_version": 1,
+  "catalog_version": "2026.10.20",
+  "frequency_unit": "MHz",
+  "frequency_frame": "topocentric",
+  "description": "Shared FAST RFI reference. Patterns guide candidate detection; observation profiles provide empirical starting frequencies. Entries are not a universal mask and do not remove science values. Published site bands and statistical lookups are reference-only; they do not become automatic masks.",
+  "patterns": {
+    "repeated_broad_features": {
+      "spacing_MHz": [
+        8.1,
+        16.2
+      ],
+      "match_tolerance_MHz": 0.28,
+      "status": "Published harmonic pattern consistent with IC443 spacing; absolute peak frequencies drift and hardware attribution for this dataset remains inferential.",
+      "source_url": "https://arxiv.org/html/2411.13016v1#S6.SS1",
+      "source_section": "6.1 and Table 3",
+      "reported_origin": "feed-cabin receiver-cooling compressors",
+      "historical_use": "Reported in data before late July 2021; shielding removed this pattern in late July 2021. IC443 Jan-Feb 2021 is in the affected era; do not transfer it automatically to Sun17 Oct-Nov 2021."
+    },
+    "adc_dense_pulses": {
+      "approx_spacing_MHz": 0.5,
+      "example_fundamental_spacing_MHz": 0.47,
+      "example_strong_peak_spacing_MHz": 0.94,
+      "example_beam": "M04 XX",
+      "source_url": "https://arxiv.org/html/2411.13016v1#S6.SS2",
+      "reported_origin": "digital-backend ADC",
+      "status": "Beam/polarization dependent period; diagnostic only, no absolute frequency mask"
+    },
+    "uwb_coupled_pulses": {
+      "approx_spacing_MHz": 0.37,
+      "reported_L_band_epoch": "late November 2022, a few days",
+      "source_url": "https://arxiv.org/html/2411.13016v1#S6.SS3",
+      "status": "Not evidence for this pattern in the 2021 examples; reference only"
+    }
+  },
+  "references": [
+    {
+      "title": "HiFAST III, section 6.1",
+      "url": "https://arxiv.org/html/2411.13016v1#S6.SS1"
+    },
+    {
+      "title": "FUDS observing strategy, calibration and reduction",
+      "url": "https://doi.org/10.1017/pasa.2022.16"
+    },
+    {
+      "title": "FAST RFI mitigation and statistics",
+      "url": "https://arxiv.org/abs/2111.11018"
+    },
+    {
+      "title": "FAST RFI statistics numerical table, CC0, V2",
+      "url": "https://www.scidb.cn/en/detail?dataSetId=8ba12a28467347aeb7a2afe2c198c9b6",
+      "doi": "10.57760/sciencedb.j00001.00313"
+    },
+    {
+      "title": "FAST site RFI monitoring, July 2021, known-source table",
+      "url": "https://fast.bao.ac.cn/static/uploadfiles/FAST%E6%80%A7%E8%83%BD%E5%8F%82%E6%95%B0/RFI%E7%9B%91%E6%B5%8B%E6%8A%A5%E5%91%8A/2021/RFI%20Test%20on%20the%20FAST%20Site-202107.pdf"
+    }
+  ],
+  "profiles": {
+    "IC443_2021": {
+      "description": "Empirical priors from the reviewed IC443 all-scan pilot. Frequencies vary between scans and are tracked per time chunk.",
+      "observation_date_range": [
+        "2021-01-31",
+        "2021-02-04"
+      ],
+      "status": "Candidate RFI features; weaker repeats remain provisional. Hardware attribution is inferential.",
+      "origin": "608 native pilot spectra across 76 scan\u2013beam combinations; existing reviewed reduction IC443_broad_linear_small_20261018.",
+      "scan_priors": {
+        "Dec+2150_06_05": [
+          {
+            "centre_MHz": 1407.6125621795654,
+            "median_excess_K": 3.557158773691199,
+            "partners_MHz": [
+              1415.6081676483154,
+              1423.8479137420654
+            ]
+          },
+          {
+            "centre_MHz": 1411.1526012420654,
+            "median_excess_K": 0.260969121920083,
+            "partners_MHz": [
+              1419.1482067108154,
+              1427.3269176483154
+            ]
+          },
+          {
+            "centre_MHz": 1415.6081676483154,
+            "median_excess_K": 0.5016980224168359,
+            "partners_MHz": [
+              1407.6125621795654,
+              1423.8479137420654,
+              1431.8435192108154
+            ]
+          },
+          {
+            "centre_MHz": 1419.1482067108154,
+            "median_excess_K": 0.2315096229091617,
+            "partners_MHz": [
+              1411.1526012420654,
+              1427.3269176483154,
+              1435.3835582733154
+            ]
+          },
+          {
+            "centre_MHz": 1423.8479137420654,
+            "median_excess_K": 2.870515316475092,
+            "partners_MHz": [
+              1407.6125621795654,
+              1415.6081676483154,
+              1431.8435192108154
+            ]
+          },
+          {
+            "centre_MHz": 1427.3269176483154,
+            "median_excess_K": 0.1670886715570145,
+            "partners_MHz": [
+              1411.1526012420654,
+              1419.1482067108154,
+              1435.3835582733154
+            ]
+          },
+          {
+            "centre_MHz": 1431.8435192108154,
+            "median_excess_K": 0.49593281487240204,
+            "partners_MHz": [
+              1415.6081676483154,
+              1423.8479137420654
+            ]
+          },
+          {
+            "centre_MHz": 1435.3835582733154,
+            "median_excess_K": 0.20803837189702012,
+            "partners_MHz": [
+              1419.1482067108154,
+              1427.3269176483154
+            ]
+          }
+        ],
+        "Dec+2212_06_05": [
+          {
+            "centre_MHz": 1406.6359996795654,
+            "median_excess_K": 1.9500056607705254,
+            "partners_MHz": [
+              1414.5705699920654,
+              1422.8713512420654
+            ]
+          },
+          {
+            "centre_MHz": 1409.9929332733154,
+            "median_excess_K": 0.15125915714099625,
+            "partners_MHz": [
+              1417.9885387420654,
+              1426.1672496795654
+            ]
+          },
+          {
+            "centre_MHz": 1414.5705699920654,
+            "median_excess_K": 0.3005629292687426,
+            "partners_MHz": [
+              1406.6359996795654,
+              1422.8713512420654
+            ]
+          },
+          {
+            "centre_MHz": 1417.9885387420654,
+            "median_excess_K": 1.8167645252036622,
+            "partners_MHz": [
+              1409.9929332733154,
+              1426.1672496795654,
+              1434.1628551483154
+            ]
+          },
+          {
+            "centre_MHz": 1422.8713512420654,
+            "median_excess_K": 1.723400449045671,
+            "partners_MHz": [
+              1406.6359996795654,
+              1414.5705699920654
+            ]
+          },
+          {
+            "centre_MHz": 1426.1672496795654,
+            "median_excess_K": 0.18751464570076823,
+            "partners_MHz": [
+              1409.9929332733154,
+              1417.9885387420654,
+              1434.1628551483154
+            ]
+          },
+          {
+            "centre_MHz": 1434.1628551483154,
+            "median_excess_K": 1.104782688466061,
+            "partners_MHz": [
+              1417.9885387420654,
+              1426.1672496795654
+            ]
+          }
+        ],
+        "Dec+2234_06_05": [
+          {
+            "centre_MHz": 1405.5373668670654,
+            "median_excess_K": 0.6565223504466163,
+            "partners_MHz": [
+              1413.4109020233154,
+              1421.8337535858154
+            ]
+          },
+          {
+            "centre_MHz": 1409.5046520233154,
+            "median_excess_K": 0.18454622211511135,
+            "partners_MHz": [
+              1417.6833629608154
+            ]
+          },
+          {
+            "centre_MHz": 1413.4109020233154,
+            "median_excess_K": 0.3554100320510013,
+            "partners_MHz": [
+              1405.5373668670654,
+              1429.7072887420654
+            ]
+          },
+          {
+            "centre_MHz": 1417.6833629608154,
+            "median_excess_K": 1.5963262057338277,
+            "partners_MHz": [
+              1409.5046520233154,
+              1433.7356090545654
+            ]
+          },
+          {
+            "centre_MHz": 1421.8337535858154,
+            "median_excess_K": 1.4774633521330565,
+            "partners_MHz": [
+              1405.5373668670654,
+              1429.7072887420654
+            ]
+          },
+          {
+            "centre_MHz": 1429.7072887420654,
+            "median_excess_K": 0.16069715888163336,
+            "partners_MHz": [
+              1413.4109020233154,
+              1421.8337535858154
+            ]
+          },
+          {
+            "centre_MHz": 1433.7356090545654,
+            "median_excess_K": 1.1661765243538378,
+            "partners_MHz": [
+              1417.6833629608154
+            ]
+          }
+        ],
+        "Dec+2255_06_05": [
+          {
+            "centre_MHz": 1405.4152965545654,
+            "median_excess_K": 1.3628855623383498,
+            "partners_MHz": [
+              1413.3498668670654,
+              1421.6506481170654
+            ]
+          },
+          {
+            "centre_MHz": 1409.6267223358154,
+            "median_excess_K": 0.17761937553207977,
+            "partners_MHz": [
+              1417.6833629608154
+            ]
+          },
+          {
+            "centre_MHz": 1413.3498668670654,
+            "median_excess_K": 0.30952726774950445,
+            "partners_MHz": [
+              1405.4152965545654,
+              1421.6506481170654,
+              1429.6462535858154
+            ]
+          },
+          {
+            "centre_MHz": 1417.6833629608154,
+            "median_excess_K": 1.0853367547376145,
+            "partners_MHz": [
+              1409.6267223358154,
+              1433.9187145233154
+            ]
+          },
+          {
+            "centre_MHz": 1421.6506481170654,
+            "median_excess_K": 1.1537739136130911,
+            "partners_MHz": [
+              1405.4152965545654,
+              1413.3498668670654,
+              1429.6462535858154
+            ]
+          },
+          {
+            "centre_MHz": 1429.6462535858154,
+            "median_excess_K": 0.3074063255489712,
+            "partners_MHz": [
+              1413.3498668670654,
+              1421.6506481170654
+            ]
+          },
+          {
+            "centre_MHz": 1433.9187145233154,
+            "median_excess_K": 1.0541234678596039,
+            "partners_MHz": [
+              1417.6833629608154
+            ]
+          }
+        ],
+        "Dec+2317_06_05": [
+          {
+            "centre_MHz": 1405.8425426483154,
+            "median_excess_K": 1.8840799122822958,
+            "partners_MHz": [
+              1413.7771129608154,
+              1422.0168590545654
+            ]
+          },
+          {
+            "centre_MHz": 1409.0163707733154,
+            "median_excess_K": 0.2386576054849346,
+            "partners_MHz": [
+              1416.8899059295654
+            ]
+          },
+          {
+            "centre_MHz": 1413.7771129608154,
+            "median_excess_K": 0.22269817911523465,
+            "partners_MHz": [
+              1405.8425426483154,
+              1422.0168590545654,
+              1429.9514293670654
+            ]
+          },
+          {
+            "centre_MHz": 1416.8899059295654,
+            "median_excess_K": 0.9495104634232636,
+            "partners_MHz": [
+              1409.0163707733154,
+              1433.0642223358154
+            ]
+          },
+          {
+            "centre_MHz": 1422.0168590545654,
+            "median_excess_K": 1.6654656711527327,
+            "partners_MHz": [
+              1405.8425426483154,
+              1413.7771129608154,
+              1429.9514293670654
+            ]
+          },
+          {
+            "centre_MHz": 1429.9514293670654,
+            "median_excess_K": 0.19088442237357983,
+            "partners_MHz": [
+              1413.7771129608154,
+              1422.0168590545654
+            ]
+          },
+          {
+            "centre_MHz": 1433.0642223358154,
+            "median_excess_K": 0.5688763806752821,
+            "partners_MHz": [
+              1416.8899059295654
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "published_statistics": {
+    "dataset_id": "zhang_2022_fast_statistics_v2",
+    "path": "fast_rfi_statistics_zhang2022.json",
+    "sha256": "aff8f69b4de5c0cbb345a5b39fbbee86430217d51fe4b9c52abc882855e15b62",
+    "source_doi": "10.57760/sciencedb.j00001.00313",
+    "mask_policy": "reference_only",
+    "contains_astronomical_HI": true
+  },
+  "published_site_sources": {
+    "source_url": "https://fast.bao.ac.cn/static/uploadfiles/FAST%E6%80%A7%E8%83%BD%E5%8F%82%E6%95%B0/RFI%E7%9B%91%E6%B5%8B%E6%8A%A5%E5%91%8A/2021/RFI%20Test%20on%20the%20FAST%20Site-202107.pdf",
+    "report_date": "2021-07",
+    "measurement_location": "Bottom of 7H feed support tower; separate monitoring antenna, not the astronomical receiver",
+    "mask_policy": "reference_only",
+    "coverage_note": "Selected L-band entries from the known-source table; not a complete list of all possible FAST RFI.",
+    "entries": [
+      {
+        "band_MHz": [
+          1030,
+          1140
+        ],
+        "source": "civil aviation"
+      },
+      {
+        "centres_MHz": [
+          1176,
+          1207,
+          1227,
+          1268,
+          1381,
+          1561,
+          2492
+        ],
+        "source": "navigation satellites",
+        "width_MHz": null
+      },
+      {
+        "band_MHz": [
+          1467,
+          1492
+        ],
+        "source": "ASIASTAR"
+      },
+      {
+        "band_MHz": [
+          1525,
+          1559
+        ],
+        "source": "INMARSAT"
+      },
+      {
+        "band_MHz": [
+          1616.06,
+          1625.5
+        ],
+        "source": "IRIDIUM"
+      }
+    ]
+  },
+  "ic443_literature_comparison": {
+    "dataset_id": "zhang_2022_fast_statistics_v2",
+    "matching_rule": "Nearest table sample within 0.05 MHz; compare in native observed frequency, not LSRK.",
+    "different_epochs": true,
+    "site_list_overlap_count": 0,
+    "site_list_note": "The tabulated external-service bands do not overlap the 1404.8-1436.0 MHz IC443 band; absence from that list is not evidence against internal RFI.",
+    "entries": [
+      {
+        "scan": "Dec+2150_06_05",
+        "empirical_centre_MHz": 1407.6125621795654,
+        "nearest_published_frequency_MHz": 1407.6,
+        "offset_MHz": 0.012562179565520637,
+        "probability_XX_percent": 0.0407,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.1868,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2150_06_05",
+        "empirical_centre_MHz": 1411.1526012420654,
+        "nearest_published_frequency_MHz": 1411.2,
+        "offset_MHz": -0.04739875793461579,
+        "probability_XX_percent": 0.0451,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0644,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2150_06_05",
+        "empirical_centre_MHz": 1415.6081676483154,
+        "nearest_published_frequency_MHz": 1415.6,
+        "offset_MHz": 0.008167648315520637,
+        "probability_XX_percent": 0.2481,
+        "flagged_mean_Ta_XX_K": 5.8334,
+        "probability_YY_percent": 0.005,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2150_06_05",
+        "empirical_centre_MHz": 1419.1482067108154,
+        "nearest_published_frequency_MHz": 1419.1,
+        "offset_MHz": 0.04820671081552064,
+        "probability_XX_percent": 0.301,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0244,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2150_06_05",
+        "empirical_centre_MHz": 1423.8479137420654,
+        "nearest_published_frequency_MHz": 1423.8,
+        "offset_MHz": 0.04791374206547516,
+        "probability_XX_percent": 0.0611,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.1016,
+        "flagged_mean_Ta_YY_K": 53.3374,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2150_06_05",
+        "empirical_centre_MHz": 1427.3269176483154,
+        "nearest_published_frequency_MHz": 1427.3,
+        "offset_MHz": 0.026917648315475162,
+        "probability_XX_percent": 0.0205,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0649,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2150_06_05",
+        "empirical_centre_MHz": 1431.8435192108154,
+        "nearest_published_frequency_MHz": 1431.8,
+        "offset_MHz": 0.04351921081547516,
+        "probability_XX_percent": 0.0237,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0202,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2150_06_05",
+        "empirical_centre_MHz": 1435.3835582733154,
+        "nearest_published_frequency_MHz": 1435.4,
+        "offset_MHz": -0.016441726684661262,
+        "probability_XX_percent": 0.1016,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0136,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2212_06_05",
+        "empirical_centre_MHz": 1406.6359996795654,
+        "nearest_published_frequency_MHz": 1406.6,
+        "offset_MHz": 0.03599967956552064,
+        "probability_XX_percent": 0.0135,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.1831,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2212_06_05",
+        "empirical_centre_MHz": 1409.9929332733154,
+        "nearest_published_frequency_MHz": 1410.0,
+        "offset_MHz": -0.0070667266845703125,
+        "probability_XX_percent": 0.0119,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.1356,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2212_06_05",
+        "empirical_centre_MHz": 1414.5705699920654,
+        "nearest_published_frequency_MHz": 1414.6,
+        "offset_MHz": -0.029430007934479363,
+        "probability_XX_percent": 0.1677,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0122,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2212_06_05",
+        "empirical_centre_MHz": 1417.9885387420654,
+        "nearest_published_frequency_MHz": 1418.0,
+        "offset_MHz": -0.011461257934570312,
+        "probability_XX_percent": 0.3153,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0161,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2212_06_05",
+        "empirical_centre_MHz": 1422.8713512420654,
+        "nearest_published_frequency_MHz": 1422.9,
+        "offset_MHz": -0.028648757934661262,
+        "probability_XX_percent": 0.1664,
+        "flagged_mean_Ta_XX_K": 24.0432,
+        "probability_YY_percent": 0.1187,
+        "flagged_mean_Ta_YY_K": 48.1041,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2212_06_05",
+        "empirical_centre_MHz": 1426.1672496795654,
+        "nearest_published_frequency_MHz": 1426.2,
+        "offset_MHz": -0.03275032043461579,
+        "probability_XX_percent": 0.0367,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0604,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2212_06_05",
+        "empirical_centre_MHz": 1434.1628551483154,
+        "nearest_published_frequency_MHz": 1434.2,
+        "offset_MHz": -0.03714485168461579,
+        "probability_XX_percent": 0.0794,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0115,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2234_06_05",
+        "empirical_centre_MHz": 1405.5373668670654,
+        "nearest_published_frequency_MHz": 1405.5,
+        "offset_MHz": 0.03736686706542969,
+        "probability_XX_percent": 0.0087,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.1915,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2234_06_05",
+        "empirical_centre_MHz": 1409.5046520233154,
+        "nearest_published_frequency_MHz": 1409.5,
+        "offset_MHz": 0.0046520233154296875,
+        "probability_XX_percent": 0.006,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.2371,
+        "flagged_mean_Ta_YY_K": 3.2607,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2234_06_05",
+        "empirical_centre_MHz": 1413.4109020233154,
+        "nearest_published_frequency_MHz": 1413.4,
+        "offset_MHz": 0.010902023315338738,
+        "probability_XX_percent": 0.1392,
+        "flagged_mean_Ta_XX_K": 15.3209,
+        "probability_YY_percent": 0.0278,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2234_06_05",
+        "empirical_centre_MHz": 1417.6833629608154,
+        "nearest_published_frequency_MHz": 1417.7,
+        "offset_MHz": -0.016637039184615787,
+        "probability_XX_percent": 0.2576,
+        "flagged_mean_Ta_XX_K": 10.2631,
+        "probability_YY_percent": 0.0159,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2234_06_05",
+        "empirical_centre_MHz": 1421.8337535858154,
+        "nearest_published_frequency_MHz": 1421.8,
+        "offset_MHz": 0.03375358581547516,
+        "probability_XX_percent": 0.1063,
+        "flagged_mean_Ta_XX_K": 34.5292,
+        "probability_YY_percent": 0.0597,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2234_06_05",
+        "empirical_centre_MHz": 1429.7072887420654,
+        "nearest_published_frequency_MHz": 1429.7,
+        "offset_MHz": 0.007288742065384213,
+        "probability_XX_percent": 0.0155,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.07,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2234_06_05",
+        "empirical_centre_MHz": 1433.7356090545654,
+        "nearest_published_frequency_MHz": 1433.7,
+        "offset_MHz": 0.03560905456538421,
+        "probability_XX_percent": 0.0343,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0298,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2255_06_05",
+        "empirical_centre_MHz": 1405.4152965545654,
+        "nearest_published_frequency_MHz": 1405.4,
+        "offset_MHz": 0.015296554565338738,
+        "probability_XX_percent": 0.0168,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.2311,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2255_06_05",
+        "empirical_centre_MHz": 1409.6267223358154,
+        "nearest_published_frequency_MHz": 1409.6,
+        "offset_MHz": 0.026722335815520637,
+        "probability_XX_percent": 0.018,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.2245,
+        "flagged_mean_Ta_YY_K": 6.6747,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2255_06_05",
+        "empirical_centre_MHz": 1413.3498668670654,
+        "nearest_published_frequency_MHz": 1413.3,
+        "offset_MHz": 0.04986686706547516,
+        "probability_XX_percent": 0.1391,
+        "flagged_mean_Ta_XX_K": 27.0789,
+        "probability_YY_percent": 0.0162,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2255_06_05",
+        "empirical_centre_MHz": 1417.6833629608154,
+        "nearest_published_frequency_MHz": 1417.7,
+        "offset_MHz": -0.016637039184615787,
+        "probability_XX_percent": 0.2576,
+        "flagged_mean_Ta_XX_K": 10.2631,
+        "probability_YY_percent": 0.0159,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2255_06_05",
+        "empirical_centre_MHz": 1421.6506481170654,
+        "nearest_published_frequency_MHz": 1421.7,
+        "offset_MHz": -0.04935188293461579,
+        "probability_XX_percent": 0.1054,
+        "flagged_mean_Ta_XX_K": 22.805,
+        "probability_YY_percent": 0.0892,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2255_06_05",
+        "empirical_centre_MHz": 1429.6462535858154,
+        "nearest_published_frequency_MHz": 1429.6,
+        "offset_MHz": 0.04625358581552064,
+        "probability_XX_percent": 0.0216,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0503,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2255_06_05",
+        "empirical_centre_MHz": 1433.9187145233154,
+        "nearest_published_frequency_MHz": 1433.9,
+        "offset_MHz": 0.018714523315338738,
+        "probability_XX_percent": 0.072,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.012,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2317_06_05",
+        "empirical_centre_MHz": 1405.8425426483154,
+        "nearest_published_frequency_MHz": 1405.8,
+        "offset_MHz": 0.04254264831547516,
+        "probability_XX_percent": 0.0209,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.1485,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2317_06_05",
+        "empirical_centre_MHz": 1409.0163707733154,
+        "nearest_published_frequency_MHz": 1409.0,
+        "offset_MHz": 0.016370773315429688,
+        "probability_XX_percent": 0.0099,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.127,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2317_06_05",
+        "empirical_centre_MHz": 1413.7771129608154,
+        "nearest_published_frequency_MHz": 1413.8,
+        "offset_MHz": -0.022887039184524838,
+        "probability_XX_percent": 0.1331,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0099,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2317_06_05",
+        "empirical_centre_MHz": 1416.8899059295654,
+        "nearest_published_frequency_MHz": 1416.9,
+        "offset_MHz": -0.010094070434661262,
+        "probability_XX_percent": 0.2648,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0183,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2317_06_05",
+        "empirical_centre_MHz": 1422.0168590545654,
+        "nearest_published_frequency_MHz": 1422.0,
+        "offset_MHz": 0.016859054565429688,
+        "probability_XX_percent": 0.1584,
+        "flagged_mean_Ta_XX_K": 18.1468,
+        "probability_YY_percent": 0.049,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": true,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2317_06_05",
+        "empirical_centre_MHz": 1429.9514293670654,
+        "nearest_published_frequency_MHz": 1430.0,
+        "offset_MHz": -0.04857063293457031,
+        "probability_XX_percent": 0.0249,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0704,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      },
+      {
+        "scan": "Dec+2317_06_05",
+        "empirical_centre_MHz": 1433.0642223358154,
+        "nearest_published_frequency_MHz": 1433.1,
+        "offset_MHz": -0.03577766418447936,
+        "probability_XX_percent": 0.0382,
+        "flagged_mean_Ta_XX_K": 0.0,
+        "probability_YY_percent": 0.0107,
+        "flagged_mean_Ta_YY_K": 0.0,
+        "positive_reported_intensity_in_bin": false,
+        "interpretation": "Same 0.1-MHz sampling bin only; later epoch and possibly different interference source. Not an identification or masking instruction."
+      }
+    ]
+  }
+}

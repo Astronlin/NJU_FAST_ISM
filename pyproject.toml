@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fastfish"
+version = "0.1.0"
+description = "Step-by-step FAST Pulsar+Spectral calibration and imaging"
+requires-python = ">=3.8"
+dependencies = ["numpy>=1.22", "scipy>=1.8", "astropy>=5", "pandas>=1.4", "openpyxl>=3", "matplotlib>=3.5", "cygrid>=2"]
+
+[project.optional-dependencies]
+notebook = ["jupyter", "nbformat>=5"]
+interactive = ["bokeh>=2.3,<3", "numpy>=1.22,<2"]
+
+qt = ["pyqtgraph==0.13.7", "PyQt5>=5.15,<6"]
+
+[project.scripts]
+fish = "fastfish.shell:main"
+fish-viewer = "fastfish.qt_viewer:main"
+fastfish = "fastfish.pipeline:main"
+fastfish-interactive = "fastfish.interactive_app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+fastfish = ["iers_b.fits", "data/*.json"]
