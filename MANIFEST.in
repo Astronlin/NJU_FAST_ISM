@@ -1,0 +1,2 @@
+recursive-include examples/minimal_calibration *.md *.py *.ipynb *.fits *.json *.png
+include examples/minimal_calibration/data/pointings.npz

@@ -90,3 +90,14 @@ Parameter edits are marked **Unapplied edits**. Click **Update preview** to save
 Use **View → Plot ranges…** for exact horizontal and independent upper/lower vertical plot limits. These are display limits. The Table page's **Output velocity** limits instead control the spectral product. **View → Display tools** reveals spectrum styles, display averaging, colors and image controls. **Workflow → RFI catalogue…** opens catalogue selection. Settings can still be detached.
 
 **Run commands…** provides copyable commands for the saved session; it does not launch processing. Apply pending edits first, then run the commands in FISH. In the terminal, `guide` prints the workflow and current session/run folder. Restart FISH and the viewer after installing the update.
+
+
+## Runnable minimal spectral-workflow example
+
+See [examples/minimal_calibration/README.md](examples/minimal_calibration/README.md) for the bundled real Sun17_A_01/M01 extract, readable runner and step-by-step notebook. It calls production calibration functions and checks numerical repeatability against an original-input calculation. The example is included in the source distribution; it is not installed into the Python wheel.
+
+The example runs the complete spectral workflow through baseline removal and
+resampling with `run_workflow.py`; only spatial gridding is omitted. Its actual
+Qt viewer can be opened with the generated session, or prepared first using
+`prepare_viewer.py`. See the example README for exact run/wait commands, plots,
+parameter exercises and saved-table reading instructions.

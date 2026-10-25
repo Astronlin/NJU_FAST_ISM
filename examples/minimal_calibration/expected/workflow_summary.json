@@ -1,0 +1,53 @@
+{
+  "dataset": "Sun17_A_01 M01 real extract",
+  "selected_spectra": 32,
+  "stages": {
+    "reference": {
+      "spectra": 32,
+      "scan_beams": 1
+    },
+    "calibration": {
+      "spectra": 32,
+      "scan_beams": 1
+    },
+    "baseline": {
+      "spectra": 32,
+      "scan_beams": 1
+    },
+    "resample": {
+      "spectra": 32,
+      "scan_beams": 1
+    }
+  },
+  "native_channels": 65536,
+  "output_shape": [
+    32,
+    2485
+  ],
+  "finite_fraction": 1.0,
+  "output_velocity_kms": [
+    250.00000000000426,
+    -249.98843489199513
+  ],
+  "RFI_intervals_per_chunk": [
+    [],
+    []
+  ],
+  "baseline_mode": "ordered components, AA/BB fitted separately",
+  "baseline_period_at_limit_chunks": 1,
+  "baseline_first_spectrum": [
+    {
+      "polarization": "AA",
+      "first_spectrum_clean_median_K": -0.0672054237310796,
+      "first_spectrum_clean_robust_scatter_K": 2.7792141653628324
+    },
+    {
+      "polarization": "BB",
+      "first_spectrum_clean_median_K": -0.10821168807541007,
+      "first_spectrum_clean_robust_scatter_K": 2.906455959018282
+    }
+  ],
+  "gridding_performed": false,
+  "checks_passed": true,
+  "note": "Finite tables and clean-channel residual statistics do not establish baseline truth inside protected H I or absolute calibration accuracy."
+}

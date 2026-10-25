@@ -1,0 +1,53 @@
+{
+  "dataset": "Sun17_A_01 real observation",
+  "beam": "M01",
+  "science_shape": [
+    32,
+    65536,
+    2
+  ],
+  "reference_shape": [
+    64,
+    2,
+    261
+  ],
+  "n_t_cal": 10,
+  "n_t_apply": 10,
+  "science_duration_s": 6.442450944,
+  "midpoint_MJD_range": [
+    59497.44061898517,
+    59497.44069122041
+  ],
+  "finite_fraction": 1.0,
+  "median_Tpsr_K": [
+    26.430039087182983,
+    27.354430198669434
+  ],
+  "nonpositive_reference_fraction_by_pol": [
+    0.0008381226053639847,
+    0.0004789272030651341
+  ],
+  "nonfinite_reference_fraction_by_pol": [
+    0.0,
+    0.0
+  ],
+  "nonfinite_reference_frequencies_MHz": [],
+  "nonpositive_reference_frequencies_MHz": [
+    1420.2880859375
+  ],
+  "median_calibrated_K": [
+    26.451161477101465,
+    27.340548345123054
+  ],
+  "detected_RFI_intervals_MHz": [],
+  "regression_compared": true,
+  "maximum_sample_change_from_default_K": 1.4779288903810084e-12,
+  "cropped_vs_original_max_K": 0.0,
+  "gain_coefficients_shape": [
+    32,
+    2,
+    4
+  ],
+  "checks_passed": true,
+  "note": "Real-data numerical repeatability; no known astrophysical truth, no absolute calibration-accuracy claim. No baseline subtraction or Doppler correction."
+}

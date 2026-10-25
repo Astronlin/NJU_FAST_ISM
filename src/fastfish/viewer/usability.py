@@ -162,10 +162,14 @@ class UsabilityMixin:
 
     def show_run_commands(self):
         if self.state is None:return
+        if self.state.get('preview_only'):
+            self.text_dialog('Compact example · previews only','This 32-spectrum teaching session supports interactive previews. Use a full observation project for batch reduction and cube gridding.');return
         if self.worker.isRunning() or self.pending_request is not None:
             self.error('Wait for the current preview to finish before preparing processing commands.');return
         if self.draft_dirty:self.error('Update preview to apply your edits before preparing processing commands.');return
         commands=list(COMMANDS)
+        if self.state.get('omit_gridding'):
+            commands=commands[:commands.index('xy_map run --validate')]+['status']
         if self.state.get('session_path'):commands.insert(0,'restore '+shlex.quote(self.state['session_path']))
         text='Run these commands in the FISH prompt on the data host.\nEach run processes the entire loaded selection with the saved settings.\nWait for a stage to finish before the next command; investigate any failure.\n\nRun folder: '+self.state.get('root','—')+'\n\n'+'\n'.join(commands)
         dialog,editor,buttons=self.text_dialog('FISH · process the loaded selection',text)

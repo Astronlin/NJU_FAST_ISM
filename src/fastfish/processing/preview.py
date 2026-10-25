@@ -210,6 +210,9 @@ class PreviewDataset:
 
     def reference(self,file_id,chunk_id,params=None):
         n_t=smoothing_rows((params or self.cfg).get('n_t_apply',10));n_t_cal=smoothing_rows((params or self.cfg).get('n_t_cal',10))
+        limit=self.cfg.get('reference_context_max_rows')
+        if limit is not None and max(n_t,n_t_cal)>int(limit):
+            raise ValueError('Insufficient extracted CAL context: maximum smoothing window is %d timestamps'%int(limit))
         ctx=self.files[file_id];size=self.cfg['chunk_rows'];sl=slice(chunk_id*size,(chunk_id+1)*size)
         t=ctx['coords']['mjd'][sl];f=self.frequency(file_id)
         return self._cached(('reference',file_id,chunk_id,n_t,n_t_cal),lambda:read_reference(ctx,float(t.min()),float(t.max()),f,dict(self.cfg,n_t_apply=n_t,n_t_cal=n_t_cal)))

@@ -1,0 +1,71 @@
+{
+  "dataset": "Sun17_A_01 real observation",
+  "beam": "M01",
+  "science_row_slice_zero_based": [
+    1040,
+    1072
+  ],
+  "SCI_original_basename": "Sun17_A_01_arcdrift-M01_N_0001.fits",
+  "CAL_original_basename": "Sun17_A_01_arcdrift-M01_0017_211010_103426_cal.fits",
+  "Tcal_original_basename": "CAL.20201014.low.W.fits",
+  "science_shape": [
+    32,
+    65536,
+    2
+  ],
+  "CAL_shape": [
+    64,
+    2,
+    2,
+    261
+  ],
+  "CAL_original_channel_slice": [
+    3314,
+    3575
+  ],
+  "Tcal_original_channel_slice": [
+    53006,
+    57203
+  ],
+  "science_midpoint_MJD_range": [
+    59497.44061898517,
+    59497.44069122041
+  ],
+  "science_integration_s": 0.201326592,
+  "science_duration_s": 6.442450944,
+  "frequency_GHz_range": [
+    1.4047846794128418,
+    1.4360342025756836
+  ],
+  "CAL_MJD_range": [
+    59497.440581702474,
+    59497.44072850311
+  ],
+  "CAL_time_context_rows_each_side": [
+    16,
+    16
+  ],
+  "reference_comparison_max_K": 0.0,
+  "calibrated_comparison_max_K": 0.0,
+  "detected_RFI_intervals_MHz": [],
+  "note": "Real observed counts, no simulated values; no baseline subtraction or Doppler/pointing correction. Cropped Tcal retains smoothing context. No known astrophysical truth.",
+  "files": {
+    "on_off.fits": {
+      "bytes": 279360,
+      "sha256": "ff727df95233a432dc153c7c819312d7d8a26fca97bf980e3d740a9ebab13692"
+    },
+    "science.fits": {
+      "bytes": 16796160,
+      "sha256": "b828b016b16fde665725c265f069af3d9acfeeda18d578fd9c801b154b20dea8"
+    },
+    "tcal_reference.fits": {
+      "bytes": 106560,
+      "sha256": "39f0d9804841ffb8d74ac4e10ac4de480b3401a10017bb462baf62ad9cd089cc"
+    },
+    "pointings.npz": {
+      "bytes": 2013,
+      "sha256": "d0e5fc1be7f3491b0040b10e5455bd898e7b4034b866621773a43bb80d1e5abe"
+    }
+  },
+  "pointing_provenance": "Actual RA/Dec and midpoint times from the verified Sun17_A_01_04 selection, original M01 N_0001 rows1040:1072; per-spectrum LSRK frequency factors calculated by the production pipeline. ids remapped to compact SCI rows0:32; original_ids retained."
+}

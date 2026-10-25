@@ -4,7 +4,7 @@ Admission is an estimate, not an OS memory limit. Existing tasks finish when
 external memory pressure rises; new work waits. No science parameters change.
 """
 from pathlib import Path
-import json,math,multiprocessing,os,resource,sys,time,traceback
+import json,math,multiprocessing,os,resource,sys,time,traceback,re,subprocess
 GIB=1024**3
 
 
@@ -18,8 +18,18 @@ def memory_state():
     except (OSError,KeyError,ValueError):
         try:
             total=os.sysconf('SC_PAGE_SIZE')*os.sysconf('SC_PHYS_PAGES')
-            available=os.sysconf('SC_PAGE_SIZE')*os.sysconf('SC_AVPHYS_PAGES')
-        except (ValueError,OSError):raise RuntimeError('Cannot determine available memory; refusing automatic admission')
+            if sys.platform=='darwin':
+                # macOS has no SC_AVPHYS_PAGES. Count only free/reclaimable
+                # physical pages; exclude compressed/swapped memory.
+                report=subprocess.check_output(['/usr/bin/vm_stat'],text=True,timeout=5)
+                match=re.search(r'page size of (\d+) bytes',report)
+                if match is None:raise ValueError('Cannot read macOS VM page size')
+                page_size=int(match.group(1))
+                counts={key:int(value) for key,value in re.findall(r'^(Pages [^:]+):\s+(\d+)\.',report,re.M)}
+                available=page_size*sum(counts[key] for key in ('Pages free','Pages inactive','Pages speculative'))
+            else:
+                available=os.sysconf('SC_PAGE_SIZE')*os.sysconf('SC_AVPHYS_PAGES')
+        except (ValueError,OSError,KeyError,subprocess.SubprocessError):raise RuntimeError('Cannot determine available memory; refusing automatic admission')
     bases={Path('/sys/fs/cgroup')}
     try:
         for line in Path('/proc/self/cgroup').read_text().splitlines():

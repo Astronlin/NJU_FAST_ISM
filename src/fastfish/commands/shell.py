@@ -19,6 +19,9 @@ def defaults(cfg):
 
 def validate_params(cfg,params):
     p=dict(params);p['baseline_components']=normalize_components(p.get('baseline_components',default_components(dict(cfg,**p))));p['n_t_cal']=smoothing_rows(p['n_t_cal']);p['n_t_apply']=smoothing_rows(p['n_t_apply'])
+    limit=cfg.get('reference_context_max_rows')
+    if limit is not None and max(p['n_t_cal'],p['n_t_apply'])>int(limit):
+        raise ValueError('This extracted reference supports smoothing windows up to %d timestamps; obtain more CAL context for larger windows'%int(limit))
     if not isinstance(p['baseline'],bool):raise ValueError('baseline must be true or false')
     if not np.isfinite(p['protect_kms']) or p['protect_kms']<0:raise ValueError('Protected H I half-width must be finite and nonnegative')
     p['baseline_exclusions_kms']=normalize_windows(p['baseline_exclusions_kms'])
@@ -35,8 +38,10 @@ def owned_process(pid,module,identity):
         proc=Path('/proc')/str(int(pid))/'cmdline'
         if proc.exists():
             text=proc.read_bytes().replace(b'\0',b' ').decode();return module in text and str(identity) in text
-        if sys.platform!='linux':os.kill(int(pid),0);return False
-    except (OSError,ValueError,TypeError):pass
+        if sys.platform!='linux':
+            text=subprocess.check_output(['/bin/ps','-p',str(int(pid)),'-o','args='],text=True,timeout=5)
+            return module in text and str(identity) in text
+    except (OSError,ValueError,TypeError,subprocess.SubprocessError):pass
     return False
 
 class FishShell(cmd.Cmd):
@@ -233,6 +238,7 @@ class FishShell(cmd.Cmd):
         print('Edit parameters, then Update preview. Reset edits restores the saved session settings.')
         print('Process the loaded selection, waiting after each stage:')
         for command in ('tsyscal run','applycal run','baseline run','table run','xy_map run --validate'):
+            if command.startswith('xy_map') and self._cfg().get('omit_gridding'):continue
             print('  '+command+'\n  wait')
         print('Use status for progress and output paths. View → Plot ranges controls display only.')
     def do_tsyscal(self,arg):
@@ -286,6 +292,8 @@ class FishShell(cmd.Cmd):
         if not os.environ.get('SSH_CONNECTION') and (sys.platform=='darwin' or os.environ.get('DISPLAY')):webbrowser.open(url)
     def _run(self,stage,validate=False):
         s=self._state();d=self._data();params=validate_params(d.cfg,s['params']);root=Path(s['root'])
+        if d.cfg.get('preview_only'):raise ValueError('This compact teaching session supports previews only. Use a full observation project for batch reduction.')
+        if stage=='cube' and d.cfg.get('omit_gridding'):raise ValueError('This spectral-workflow example ends at the table stage; use a spatially extended observation for gridding.')
         dependency={'calibration':'reference','baseline':'calibration','resample':'baseline','cube':'resample'}.get(stage)
         if dependency and not (stage_path(root,dependency,d,params)/'summary.json').is_file():raise ValueError('Complete '+{'reference':'tsyscal','calibration':'applycal','baseline':'baseline','resample':'table'}[dependency]+' run first with these settings')
         with (root/'.launch.lock').open('a+') as lock:
@@ -305,6 +313,8 @@ class FishShell(cmd.Cmd):
         """status: show running job, stage checkpoints and the table/cube locations."""
         s=self._state();root=Path(s['root']);d=self._data()
         for stage in ('reference','calibration','baseline','resample','cube'):
+            if stage=='cube' and d.cfg.get('omit_gridding'):
+                print('cube omitted: this example ends at the spectral table');continue
             p=stage_path(root,stage,d,s['params']);print(stage, 'complete' if (p/'summary.json').is_file() else 'pending',p)
         job=root/'active_job.json'
         if job.is_file():
