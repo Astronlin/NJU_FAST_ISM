@@ -1,5 +1,6 @@
 """Persistent SSH stdio worker. No Qt dependency; raw FITS remain remote."""
 import argparse,base64,contextlib,io,json,sys,traceback,zipfile
+from pathlib import Path
 import numpy as np
 from fastfish.processing.session import read_session,write_session,load_session_catalog
 from fastfish.processing.preview import PreviewDataset,C,output_grid,resample
@@ -12,14 +13,16 @@ def preview_arrays(ds,s,view=None):
     if view not in (None,'Tsys calibration','Apply calibration','Baseline','Table'):
         raise ValueError('Unknown preview view: '+str(view))
     params=s['params'];index=s['index'];fi,ch,row=ds.address(index)
+    ctx=ds.files[fi];local=ch*ds.cfg['chunk_rows']+row
+    selected=dict(scan=ctx['scan'],beam=ctx['beam'],raw_row=int(ctx['coords']['ids'][local]),file=Path(ctx['entry']['path']).name)
     if view=='Tsys calibration':
-        return ds.reference_display(fi,ch,params),dict(preview_view=view)
+        return ds.reference_display(fi,ch,params),dict(preview_view=view,selection_info=selected)
     if view=='Apply calibration':
         cal=ds.calibrated(fi,ch,params);sc=cal['scales'][row];f=cal['frequency_ghz']
         intervals=np.asarray(cal['intervals'],dtype=float).reshape(-1,2)
         return dict(velocity=(1-f*sc/ds.cfg['rest_freq_ghz'])*C,
             raw_pol=cal['raw_pol'][row],pol=cal['pol'][row],
-            rfi_velocity=(1-intervals/1000*sc/ds.cfg['rest_freq_ghz'])*C),dict(preview_view=view)
+            rfi_velocity=(1-intervals/1000*sc/ds.cfg['rest_freq_ghz'])*C),dict(preview_view=view,selection_info=selected)
     point=ds.point(index,params,selected_only=True);cal=point['cal'];fit=point['fit'];f=cal['frequency_ghz']
     arrays=dict(velocity=(1-f*cal['scales'][0]/ds.cfg['rest_freq_ghz'])*C,
         pol=cal['pol'][0],broad=fit['broad_pol'][0],local=fit['local_pol'][0],residual=fit['residual_pol'][0])
@@ -33,7 +36,7 @@ def preview_arrays(ds,s,view=None):
         arrays.update(raw_pol=cal['raw_pol'][0],**ds.reference_display(fi,ch,params))
     intervals=np.asarray(cal['intervals'],dtype=float).reshape(-1,2)
     arrays['rfi_velocity']=(1-intervals/1000*cal['scales'][0]/ds.cfg['rest_freq_ghz'])*C
-    return arrays,dict(fit_report=fit['report'],preview_view=view)
+    return arrays,dict(fit_report=fit['report'],preview_view=view,selection_info=selected)
 
 
 def encode_arrays(arrays,compress=True):
@@ -73,7 +76,7 @@ def serve(path):
                 if not info:
                     catalog=load_catalog(ds.cfg['rfi_catalog'])
                     info=dict(source=ds.cfg['rfi_catalog'],version=catalog['catalog_version'],profile=ds.cfg.get('rfi_profile'))
-                s=dict(s,rfi_catalog_info=info)
+                s=dict(s,rfi_catalog_info=info,session_path=str(Path(path).resolve()))
                 if req['op']=='map' or (req['op']=='catalog' and req.get('view')=='Footprint'):
                     names=list(ds.cfg['scans']);lookup={name:i for i,name in enumerate(names)}
                     groups=np.concatenate([np.full(len(ctx['coords']['ids']),lookup[ctx['scan']],dtype=np.min_scalar_type(max(0,len(names)-1))) for ctx in ds.files])

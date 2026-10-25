@@ -44,7 +44,7 @@ The downstream correction keeps the primary ±1500 km/s fit strict. If the alter
 
 ## Configurable baseline components (Qt and FISH stages)
 
-The fixed broad/local controls are replaced by an ordered component table. Use **+ Add baseline component**, choose `sin/cos` or `polynomial`, edit its range, and use the arrows or × to reorder/remove it. Click **Apply settings / refit** to preview. The initial two editable entries reproduce the former model choices; neither is compulsory. The same component list is used by `baseline run` and `table run`.
+The fixed broad/local controls are replaced by an ordered component table. Use **+ Add baseline component**, choose `sin/cos` or `polynomial`, edit its range, and use the arrows or × to reorder/remove it. Click **Update preview** to preview. The initial two editable entries reproduce the former model choices; neither is compulsory. The same component list is used by `baseline run` and `table run`.
 
 - Range is `full` or `min:max` in LSRK km/s, e.g. `-1500:1500`. Every component fits AND subtracts only in its own range; no extrapolation beyond it. Fit ranges can be asymmetric. All components exclude protected H I, detected RFI and extra baseline-only exclusions.
 - Polynomial degree n: 0 constant, 1 linear, 2 quadratic, 3 cubic, up to 20; a stable Chebyshev representation is used internally. At most 16 components. Insufficient support/ill-conditioned fits fail explicitly rather than silently fitting.
@@ -79,3 +79,14 @@ Use **RFI catalogue…** to select a package-format JSON catalogue and optional 
 FISH terminal equivalent: `catalog /absolute/path/rfi_catalog.json --profile IC443_2021`, `catalog packaged`, or `catalog` to inspect the choice. Loading validates and freezes the catalogue (and published table) under this session's fish_runs/rfi_catalogues, then selects a new configuration for previews and future stage runs. Original configs/catalogues/products are preserved. Load before stage runs; active jobs block catalogue changes. A different catalogue/config creates different stage fingerprints, so complete required upstream stages with the new settings before running downstream stages. Catalogue entries are search priors, never automatic flags. Detection thresholds and H I protection are unchanged.
 
 Hover over the Baseline title/plot when it says **period at limit** for the component, AA/BB polarization, fitted MHz period and allowed search interval. This reports a constrained automatic search, not an automatic fit failure. Reopen the viewer and FISH shell after updating.
+
+
+## Guided viewer workflow
+
+Choose Stage, then use **Next step** to move from Footprint through Tsys calibration, Apply calibration, Baseline and Table. The hint below the toolbar explains the current step. The selected scan, beam and raw row are shown above the plots.
+
+Parameter edits are marked **Unapplied edits**. Click **Update preview** to save and preview them, or **Reset edits** to restore the session settings. New edits survive an older preview finishing in the background. Preview activity shows elapsed time; error and period-boundary notices offer **Details…**.
+
+Use **View → Plot ranges…** for exact horizontal and independent upper/lower vertical plot limits. These are display limits. The Table page's **Output velocity** limits instead control the spectral product. **View → Display tools** reveals spectrum styles, display averaging, colors and image controls. **Workflow → RFI catalogue…** opens catalogue selection. Settings can still be detached.
+
+**Run commands…** provides copyable commands for the saved session; it does not launch processing. Apply pending edits first, then run the commands in FISH. In the terminal, `guide` prints the workflow and current session/run folder. Restart FISH and the viewer after installing the update.

@@ -6,6 +6,7 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore,QtWidgets,QtGui
 from pyqtgraph.graphicsItems.LegendItem import ItemSample
 from fastfish.viewer.keyboard import ClassViewBox,ClassKeys
+from fastfish.viewer.usability import UsabilityMixin,STEPS
 from fastfish.baseline.components import normalize_components,default_components
 Signal=QtCore.pyqtSignal if hasattr(QtCore,'pyqtSignal') else QtCore.Signal
 
@@ -55,20 +56,41 @@ class WrapLayout(QtWidgets.QLayout):
     def heightForWidth(self,width):return self.arrange(QtCore.QRect(0,0,width,0),True)
     def minimumSize(self):
         result=QtCore.QSize()
-        for item in self.items:result=result.expandedTo(item.minimumSize())
+        for item in self.items:
+            if not item.isEmpty():result=result.expandedTo(item.minimumSize())
         return result
     def sizeHint(self):return self.minimumSize()
     def setGeometry(self,rect):
         super().setGeometry(rect);self.arrange(rect,False)
+        parent=self.parentWidget()
+        if isinstance(parent,WrapRow):
+            height=self.heightForWidth(rect.width())
+            if parent.minimumHeight()!=height:parent.setFixedHeight(height)
     def arrange(self,rect,measure):
         x=rect.x();y=rect.y();row=0;gap=self.spacing()
         for item in self.items:
+            if item.isEmpty():continue
             size=item.sizeHint();width=min(size.width(),max(1,rect.width()))
             if x>rect.x() and x+width>rect.x()+rect.width():
                 x=rect.x();y+=row+gap;row=0
             if not measure:item.setGeometry(QtCore.QRect(QtCore.QPoint(x,y),QtCore.QSize(width,size.height())))
             x+=width+gap;row=max(row,size.height())
         return y+row-rect.y()
+
+class WrapRow(QtWidgets.QWidget):
+    """Give a wrapping control row its actual height on small desktops."""
+    def __init__(self):
+        super().__init__();self.row=WrapLayout();self.setLayout(self.row)
+    def resizeEvent(self,event):
+        super().resizeEvent(event)
+        self.update_height()
+    def event(self,event):
+        result=super().event(event)
+        if event.type()==QtCore.QEvent.LayoutRequest and hasattr(self,'row'):self.update_height()
+        return result
+    def update_height(self):
+        height=self.row.heightForWidth(self.width())
+        if self.height()!=height:self.setFixedHeight(height)
 
 class ImageLoader(QtCore.QThread):
     loaded=Signal(object);failed=Signal(str)
@@ -85,6 +107,8 @@ class Worker(QtCore.QThread):
         super().__init__();self.command=command;self.request=None;self.proc=None
     def run(self):
         try:
+            if self.proc is not None and self.proc.poll() is not None:
+                self.proc.stdin.close();self.proc.stdout.close();self.proc=None
             if self.proc is None:self.proc=subprocess.Popen(self.command,stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True,env=dict(os.environ,OPENBLAS_NUM_THREADS='1',OMP_NUM_THREADS='1'))
             request=dict(self.request);request.setdefault('compress',os.path.basename(self.command[0])=='ssh')
             self.proc.stdin.write(json.dumps(request)+'\n');self.proc.stdin.flush();line=self.proc.stdout.readline()
@@ -102,30 +126,30 @@ class SettingsWindow(QtWidgets.QDialog):
     def __init__(self,viewer):
         super().__init__(viewer,QtCore.Qt.Tool);self.viewer=viewer;self.setWindowTitle('FISH · parameter console');self.setMinimumSize(650,180)
         layout=QtWidgets.QVBoxLayout(self);layout.setContentsMargins(6,6,6,6);bar=QtWidgets.QHBoxLayout();layout.addLayout(bar)
-        apply_button=QtWidgets.QPushButton('Apply / refit');apply_button.clicked.connect(viewer.refit);bar.addWidget(apply_button)
+        apply_button=QtWidgets.QPushButton('Update preview');apply_button.clicked.connect(viewer.refit);bar.addWidget(apply_button)
         attach_button=QtWidgets.QPushButton('Attach to viewer');attach_button.clicked.connect(viewer.attach_settings);bar.addWidget(attach_button);bar.addStretch(1)
     def reject(self):
         self.viewer.attach_settings();super().reject()
     def closeEvent(self,event):
         self.viewer.attach_settings();event.accept()
 
-class Viewer(QtWidgets.QMainWindow):
+class Viewer(UsabilityMixin,QtWidgets.QMainWindow):
     def __init__(self,command,view='baseline'):
         super().__init__();self.setWindowTitle('FISH · native spectral workspace');self.resize(1100,750);self.state=None;self.data=None;self.masks=[];self.last_stage=None;self.footprint_layout=False;self.region_preview_data=None;self.render_cache=OrderedDict();self.render_cache_bytes=0;self.grid_orders={};self.mask_signature=None;self.pending_request=None;self.data_view=None;self.syncing_spectrum_x=False;self.settings_detached=False;self.settings_window=None;self.closing=False;self.synced_params=None
         self.scan_curves={};self.scan_names=[];self.scan_groups=None;self.scan_legend=None
         self.worker=Worker(command);self.worker.ready.connect(self.received);self.worker.failed.connect(self.error);self.worker.finished.connect(self.dispatch_pending)
         root=QtWidgets.QWidget();self.setCentralWidget(root);outer=QtWidgets.QVBoxLayout(root);outer.setContentsMargins(6,6,6,6);outer.setSpacing(4);self.outer_layout=outer
         toolbar=QtWidgets.QWidget();toolbar_layout=QtWidgets.QVBoxLayout(toolbar);toolbar_layout.setContentsMargins(0,0,0,0);toolbar_layout.setSpacing(3);outer.addWidget(toolbar)
-        bar=WrapLayout();toolbar_layout.addLayout(bar);bar.addWidget(QtWidgets.QLabel('View'))
-        self.stage=QtWidgets.QComboBox();self.stage.addItems(['Footprint','Baseline','Apply calibration','Tsys calibration','Table']);self.stage.setMinimumWidth(170);self.stage.currentTextChanged.connect(self.stage_changed);bar.addWidget(self.stage)
-        for name,fn in [('Previous',lambda:self.navigate(-1)),('Next',lambda:self.navigate(1)),('Refresh',lambda:self.fetch('point' if hasattr(self,'ra') and self.stage.currentText()!='Footprint' else 'map')),('Full footprint',self.full_footprint),('Baseline zoom',self.baseline_zoom),('Apply / refit',self.refit)]:
+        controls_row=WrapRow();bar=controls_row.row;toolbar_layout.addWidget(controls_row);bar.addWidget(QtWidgets.QLabel('Stage'))
+        self.stage=QtWidgets.QComboBox();self.stage.addItems(STEPS);self.stage.setMinimumWidth(170);self.stage.currentTextChanged.connect(self.stage_changed);bar.addWidget(self.stage)
+        for name,fn in [('Previous',lambda:self.navigate(-1)),('Next',lambda:self.navigate(1)),('Refresh',lambda:self.fetch('point' if hasattr(self,'ra') and self.stage.currentText()!='Footprint' else 'map')),('Full footprint',self.full_footprint),('Baseline zoom',self.baseline_zoom),('Update preview',self.refit)]:
             button=QtWidgets.QPushButton(name);button.clicked.connect(fn);bar.addWidget(button)
             if name=='Baseline zoom':self.baseline_zoom_button=button
-            elif name=='Apply / refit':self.refit_button=button
+            elif name=='Update preview':self.refit_button=button
         self.pol=QtWidgets.QComboBox();self.pol.addItems(['AA','BB','Mean']);self.pol.currentTextChanged.connect(lambda _:self.draw());bar.addWidget(self.pol)
         self.settings_button=QtWidgets.QToolButton();self.settings_button.setText('Settings');self.settings_button.setCheckable(True);self.settings_button.setChecked(True);self.settings_button.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon);self.settings_button.toggled.connect(self.update_settings_layout);bar.addWidget(self.settings_button)
         settings_menu=QtWidgets.QMenu(self.settings_button);self.detach_settings_action=settings_menu.addAction('Detach parameter console');self.detach_settings_action.triggered.connect(self.toggle_settings_window);self.settings_button.setMenu(settings_menu);self.settings_button.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup);self.settings_button.setToolTip('Show/hide settings. Use the arrow menu to detach the parameter console.')
-        bar=WrapLayout();toolbar_layout.addLayout(bar)
+        self.display_tools=WrapRow();bar=self.display_tools.row;toolbar_layout.addWidget(self.display_tools);self.display_tools.hide()
         bar.addWidget(QtWidgets.QLabel('Style'));self.spectrum_style=QtWidgets.QComboBox();self.spectrum_style.addItems(['Centered steps','Lines']);self.spectrum_style.currentTextChanged.connect(lambda _:self.draw());bar.addWidget(self.spectrum_style)
         bar.addWidget(QtWidgets.QLabel('Display bin (ch)'));self.display_bin=QtWidgets.QSpinBox();self.display_bin.setRange(1,512);self.display_bin.setValue(32);self.display_bin.valueChanged.connect(lambda _:self.draw());bar.addWidget(self.display_bin)
         image_button=QtWidgets.QPushButton('Load 2D FITS');image_button.clicked.connect(self.load_image);bar.addWidget(image_button)
@@ -174,6 +198,7 @@ class Viewer(QtWidgets.QMainWindow):
         self.region_shape=None;self.polygon_roi=None;self.roi=pg.RectROI([0,0],[0.1,0.1],pen='#f4a340');self.map.addItem(self.roi);self.roi.hide()
         self.marker=self.map.plot(pen=None,symbol='o',symbolSize=12,symbolBrush='#ffba55');self.map.scene().sigMouseClicked.connect(self.clicked)
         self.keyboard=ClassKeys(self)
+        self.setup_guidance(toolbar_layout,resample_bar)
         self.stage.setCurrentText({'where':'Footprint','reference':'Tsys calibration','calibration':'Apply calibration','resample':'Table','baseline':'Baseline'}.get(view,'Baseline'));self.stage_changed();self.theme.currentIndexChanged.connect(self.apply_theme);self.apply_theme();self.statusBar().showMessage('Connecting to computation worker…');self.fetch('map')
     def add_component(self,spec=None):
         spec=spec or dict(function='polynomial',degree=1,range_kms=[-1500.,1500.])
@@ -189,17 +214,26 @@ class Viewer(QtWidgets.QMainWindow):
         for col,label,delta in [(4,'↑',-1),(5,'↓',1),(6,'×',0)]:
             button=QtWidgets.QPushButton(label);table.setCellWidget(row,col,button)
             button.clicked.connect(lambda checked=False,b=button,d=delta:self.edit_component(b,d))
-        self.update_settings_layout()
+        for widget in (function,degree,window,period):
+            signal=widget.currentTextChanged if isinstance(widget,QtWidgets.QComboBox) else widget.valueChanged if isinstance(widget,QtWidgets.QSpinBox) else widget.textChanged
+            signal.connect(self.update_draft_status)
+        window.setToolTip('Use full, or minimum:maximum LSRK km/s. This component fits and subtracts only within that range.')
+        period.setToolTip('auto searches the default period range; a number fixes the period; min:max searches that MHz range.')
+        degree.setToolTip('Polynomial degree: 0 = constant, 1 = linear, 2 = quadratic, and so on.')
+        self.update_settings_layout();self.update_draft_status()
     def read_components(self):
         result=[];table=self.component_table
         for row in range(table.rowCount()):
             kind='sincos' if table.cellWidget(row,0).currentText()=='sin/cos' else 'polynomial';text=table.cellWidget(row,2).text().strip()
-            spec=dict(function=kind,range_kms=None if text.lower()=='full' else list(map(float,text.split(':'))))
+            try:spec=dict(function=kind,range_kms=None if text.lower()=='full' else list(map(float,text.split(':'))))
+            except ValueError:raise ValueError('Component {}: range must be full or min:max in km/s.'.format(row+1)) from None
             if kind=='polynomial':spec['degree']=table.cellWidget(row,1).value()
             else:
                 text=table.cellWidget(row,3).text().strip().lower()
-                if ':' in text:spec['period_MHz']=None;spec['period_range_MHz']=list(map(float,text.split(':')))
-                else:spec['period_MHz']=None if text=='auto' else float(text)
+                try:
+                    if ':' in text:spec['period_MHz']=None;spec['period_range_MHz']=list(map(float,text.split(':')))
+                    else:spec['period_MHz']=None if text=='auto' else float(text)
+                except ValueError:raise ValueError('Component {}: period must be auto, a positive MHz value, or min:max MHz.'.format(row+1)) from None
             result.append(spec)
         return normalize_components(result)
     def populate_components(self,specs):
@@ -209,6 +243,9 @@ class Viewer(QtWidgets.QMainWindow):
     def edit_component(self,button,delta):
         row=self.component_table.indexAt(button.pos()).row()
         if row<0:return
+        if delta==0:
+            self.component_table.removeRow(row);self.component_table.setFixedHeight(max(100,min(180,32+30*self.component_table.rowCount())))
+            self.update_settings_layout();self.update_draft_status();return
         try:specs=self.read_components()
         except (ValueError,TypeError) as exc:self.error(str(exc));return
         if delta==0:specs.pop(row)
@@ -310,7 +347,7 @@ class Viewer(QtWidgets.QMainWindow):
         self.refit_button.setVisible(not footprint);self.baseline_zoom_button.setVisible(stage in ('Baseline','Apply calibration','Table'))
         self.settings_panel.layout().activate()
         # Fixed to content height, with scrolling only for a long component list.
-        height=self.component_table.height()+75 if stage=='Baseline' else 42
+        height=self.component_table.height()+75 if stage=='Baseline' else 85 if stage=='Table' else 48
         if not self.settings_detached:self.control_scroll.setFixedHeight(min(230,height))
     def update_resample_controls(self,*args):
         active=self.stage.currentText()=='Table'
@@ -331,7 +368,7 @@ class Viewer(QtWidgets.QMainWindow):
         self.plot_title(self.map,'Pointing footprint');self.map.setToolTip('Click a pointing to inspect its spectrum. Zoom for more markers.')
         for control in list(self.controls.values())+[self.exclusions,self.mode,self.ng,self.pol,self.display_bin,self.spectrum_style,self.component_table,self.add_baseline_button]:control.setEnabled(not footprint)
         self.spectrum_style.setEnabled(not footprint and self.stage.currentText()!='Tsys calibration');self.display_bin.setEnabled(not footprint and self.stage.currentText()!='Tsys calibration')
-        self.update_resample_controls()
+        self.update_resample_controls();self.update_guidance()
         if not footprint and hasattr(self,'ra') and self.data_view!=self.stage.currentText():self.fetch('point')
         else:self.draw()
     def fetch(self,op,updates=None):
@@ -366,14 +403,16 @@ class Viewer(QtWidgets.QMainWindow):
     def received(self,r):
         if self.closing:return
         self.state=r['state'];d=r['data']
+        self.last_preview_error=''
         info=self.state.get('rfi_catalog_info')
         if info:self.catalog_button.setToolTip('Catalogue: {}\nVersion: {}\nProfile: {}\nSearch priors only; observed detections determine flags.'.format(info['source'],info['version'],info.get('profile') or 'none'))
         # Navigation and view responses must not erase uncommitted editor drafts.
         if self.synced_params!=self.state['params']:
-            for k,w in self.controls.items():w.setValue(self.state['params'][k])
-            self.populate_components(self.state['params'].get('baseline_components',default_components(self.state['params'])))
-            self.exclusions.setText(json.dumps(self.state['params'].get('baseline_exclusions_kms',[])));self.mode.setCurrentText(self.state['params']['spectral_mode']);self.ng.setValue(self.state['params']['n_g'])
+            try:submitted=self.draft_parameters()==self.submitted_draft
+            except (ValueError,TypeError,KeyError):submitted=False
+            if not self.draft_dirty or submitted:self.sync_parameter_controls(self.state['params'])
             self.synced_params=json.loads(json.dumps(self.state['params']))
+        self.update_draft_status();self.update_selection_info();self.update_notice()
         if 'region_mean' in d:
             self.region_preview_data=d
             o=np.argsort(d['region_velocity']);self.set_spectrum(self.corrected,d['region_velocity'][o],d['region_mean'][o]);self.plot_title(self.bottom,'Region preview · {} of {} spectra (chunk-sampled)'.format(self.state['region_used'],self.state['region_total']));self.statusBar().showMessage('Region mean only; no gridding or science products written');return
@@ -387,12 +426,14 @@ class Viewer(QtWidgets.QMainWindow):
             self.scan_curves={};self.scan_legend_action.setEnabled(True)
             if self.scan_legend is not None and self.scan_legend.isVisible():self.populate_scan_legend()
             self.full_footprint()
+            self.update_selection_info()
             if self.stage.currentText()!='Footprint' and self.pending_request is None:self.fetch('point')
             else:self.statusBar().showMessage('Footprint only · {} timestamps · no SCI arrays or calibration read'.format(len(self.ra)))
             return
         self.data=d;self.data_view=self.state.get('preview_view');self.render_cache.clear();self.render_cache_bytes=0;self.grid_orders.clear()
         if self.data_view is None:self.data_view=self.stage.currentText()
         if self.data_view==self.stage.currentText():self.draw()
+        self.update_notice()
         count=len(d.get('velocity',d.get('reference_time',[])));self.statusBar().showMessage('Spectrum {} · {} samples · revision {} · display changes use local arrays'.format(self.state['index'],count,self.state['revision']))
     def full_footprint(self):
         if not hasattr(self,'ra'):return
@@ -437,7 +478,8 @@ class Viewer(QtWidgets.QMainWindow):
             label=QtWidgets.QLabel('Colors identify scans; they do not change the selection.');label.setWordWrap(True);layout.addWidget(label)
             self.scan_legend_list=QtWidgets.QListWidget();layout.addWidget(self.scan_legend_list);self.scan_legend.resize(430,360)
         self.populate_scan_legend();self.scan_legend.show();self.scan_legend.raise_()
-    def error(self,msg):self.statusBar().showMessage(msg)
+    def error(self,msg):
+        self.last_preview_error=str(msg);self.statusBar().showMessage(str(msg));self.update_notice()
     def navigate(self,delta):
         if self.stage.currentText()=='Footprint':self.statusBar().showMessage('Choose a processing view to inspect spectra');return
         if self.state:
@@ -469,6 +511,7 @@ class Viewer(QtWidgets.QMainWindow):
     def region_mean(self):
         if self.stage.currentText()=='Footprint':self.statusBar().showMessage('Choose Table to preview calibrated region means');return
         if self.worker.isRunning():return
+        if self.draft_dirty:self.error('Update preview to apply the edited settings before calculating a region mean.');return
         if self.region_shape is None:self.statusBar().showMessage('Put the cursor over the map and press R or P to select a region');return
         if self.region_shape=='polygon':
             vertices=[self.polygon_roi.mapToParent(pos) for _,pos in self.polygon_roi.getLocalHandlePositions()]
@@ -479,11 +522,9 @@ class Viewer(QtWidgets.QMainWindow):
     def refit(self):
         if self.stage.currentText()=='Footprint':self.statusBar().showMessage('Choose a processing view before refitting');return
         if self.state:
-            try:extra=json.loads(self.exclusions.text())
-            except ValueError:self.error('Exclusions must be JSON, e.g. [[700,900]]');return
-            try:components=self.read_components()
+            try:params=self.draft_parameters()
             except (ValueError,TypeError) as exc:self.error(str(exc));return
-            params={k:w.value() for k,w in self.controls.items()};params['baseline_components']=components;params.update(baseline_exclusions_kms=extra,spectral_mode=self.mode.currentText(),n_g=self.ng.value());self.fetch('point',dict(params=params))
+            self.submitted_draft=params;self.fetch('point',dict(params=params))
     def baseline_zoom(self):
         if self.data is None or self.stage.currentText() in ('Footprint','Tsys calibration') or self.data_view!=self.stage.currentText():return
         x=self.data['velocity'];y=self.choose(self.data['raw_pol'] if self.stage.currentText()=='Apply calibration' else self.data['pol'])

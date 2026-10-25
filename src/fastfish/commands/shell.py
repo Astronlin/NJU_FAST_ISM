@@ -222,6 +222,19 @@ class FishShell(cmd.Cmd):
     def do_settings(self,arg):
         """settings: show the settings currently shared with the plot window."""
         print(json.dumps(self._state(),indent=2))
+    def do_guide(self,arg):
+        """guide: show the inspection and processing workflow without loading spectra."""
+        if arg.strip():raise ValueError('Usage: guide')
+        if self.path is None:
+            print('Start: project DIRECTORY, then file in org_spec/.../*.fits, list, and go where.');return
+        s=self._state();print('Session:',self.path);print('Run folder:',s['root'])
+        if s.get('pointing_pending'):print('Next: go where to calculate or load the footprint.');return
+        print('Inspect: tsyscal → applycal → baseline → table. In Qt, use View or Next step.')
+        print('Edit parameters, then Update preview. Reset edits restores the saved session settings.')
+        print('Process the loaded selection, waiting after each stage:')
+        for command in ('tsyscal run','applycal run','baseline run','table run','xy_map run --validate'):
+            print('  '+command+'\n  wait')
+        print('Use status for progress and output paths. View → Plot ranges controls display only.')
     def do_tsyscal(self,arg):
         """tsyscal [N_CAL N_APPLY] | tsyscal run: inspect Tsys and its two smoothing windows, or generate references for all loaded spectra."""
         words=shlex.split(arg)
