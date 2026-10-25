@@ -16,13 +16,13 @@ interactive = ["bokeh>=2.3,<3", "numpy>=1.22,<2"]
 qt = ["pyqtgraph==0.13.7", "PyQt5>=5.15,<6"]
 
 [project.scripts]
-fish = "fastfish.shell:main"
-fish-viewer = "fastfish.qt_viewer:main"
-fastfish = "fastfish.pipeline:main"
-fastfish-interactive = "fastfish.interactive_app:main"
+fish = "fastfish.commands.shell:main"
+fish-viewer = "fastfish.viewer.qt_viewer:main"
+fastfish = "fastfish.processing.pipeline:main"
+fastfish-interactive = "fastfish.viewer.web_app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-fastfish = ["iers_b.fits", "data/*.json"]
+fastfish = ["data/*.fits", "data/*.json"]

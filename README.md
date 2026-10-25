@@ -2,7 +2,8 @@
 
 Source for FAST calibration, pointing, RFI-aware baseline fitting, spectral resampling and imaging.
 
-- `src/fastfish/`: implementation, shared RFI catalog and IERS table.
+- `src/fastfish/`: source grouped by function; see [src/README.md](src/README.md).
+- `src/fastfish/data/`: shared RFI catalog, published statistics and IERS table.
 - `Tcal/`: external noise-diode temperature reference.
 - `pyproject.toml`: dependencies and command entry points.
 - `bin/`: Mac viewer launcher, where available.
@@ -68,3 +69,13 @@ The viewer uses compact stage-specific settings with a Settings toggle, leaving 
 The parameter console can also be detached into its own resizable window, with Apply/refit and Attach actions. It reuses the same controls and retains draft values, stage and spectrum selection; detaching/attaching alone does not recompute science. Closing the console safely returns it to the main window.
 
 Footprint scan colors: Scan colors is enabled by default and assigns a stable color to each scan name. Use its arrow menu → Show scan legend for the loaded names and spectrum counts, or turn the button off for a single color. The legend is a separate window so it does not obscure the map. Colors adapt to the plot theme. Changing colors or opening the legend changes display only; selected spectra, displayed point coordinates, calibration and baseline masks stay the same. Reopen the viewer after updating.
+
+Source organization (2026-10-24): functional subpackages replace the flat source directory. Existing commands and former import names remain supported through `_compat/` aliases. See [src/README.md](src/README.md) for the module map. Scientific formulas, defaults and completed products are unchanged; the reorganized source has a new fingerprint.
+
+RFI display key: the spectrum legend labels red bands as Detected RFI (with interval count), purple bands as extra fit exclusions, and gray as protected H I. Detected RFI excludes baseline anchors; channels are retained. No detected intervals is shown as a count of zero, not as proof that all channels are clean. The Tsys time plot hides this spectral key.
+
+Use **RFI catalogue…** to select a package-format JSON catalogue and optional observation profile. In a remote Mac viewer, enter a path on the data server; in a server/local viewer, Browse is available. `packaged` selects the shared default. Leave the profile blank to use published-statistics search priors only; a named profile must cover all loaded scans. JSON frequencies must be topocentric MHz, schema_version 1. Refer to the packaged data/rfi_catalog.json and RFI_REFERENCE.md for the format. If published_statistics is declared, its verified sibling JSON must accompany the input catalogue. Invalid catalogues leave the active session unchanged.
+
+FISH terminal equivalent: `catalog /absolute/path/rfi_catalog.json --profile IC443_2021`, `catalog packaged`, or `catalog` to inspect the choice. Loading validates and freezes the catalogue (and published table) under this session's fish_runs/rfi_catalogues, then selects a new configuration for previews and future stage runs. Original configs/catalogues/products are preserved. Load before stage runs; active jobs block catalogue changes. A different catalogue/config creates different stage fingerprints, so complete required upstream stages with the new settings before running downstream stages. Catalogue entries are search priors, never automatic flags. Detection thresholds and H I protection are unchanged.
+
+Hover over the Baseline title/plot when it says **period at limit** for the component, AA/BB polarization, fitted MHz period and allowed search interval. This reports a constrained automatic search, not an automatic fit failure. Reopen the viewer and FISH shell after updating.
